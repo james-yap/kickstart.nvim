@@ -577,16 +577,17 @@ do
   -- Shortcut for searching your Neovim configuration files
   vim.keymap.set('n', '<leader>sn', function() builtin.find_files { cwd = vim.fn.stdpath 'config', follow = true } end, { desc = '[S]earch [N]eovim files' })
 
-  -- <leader>sg but includes hidden and Git-ignored files
+  -- <leader>sg but for plain text
   vim.keymap.set(
     'n',
     '<leader>sG',
     function()
       builtin.live_grep {
-        additional_args = { '--hidden', '--no-ignore-vcs' },
+        additional_args = { '-F' },
+        prompt_title = 'Live Grep (fixed string)',
       }
     end,
-    { desc = '[S]earch by [G]rep, including hidden and Git-ignored files' }
+    { desc = '[S]earch by [G]rep (fixed string)' }
   )
 
   -- <leader>sf but includes hidden and Git-ignored files
@@ -597,6 +598,7 @@ do
       builtin.find_files {
         hidden = true,
         no_ignore = true,
+        prompt_title = 'Find Files (hidden + ignored)',
       }
     end,
     { desc = '[S]earch all [F]iles, including hidden and ignored' }
