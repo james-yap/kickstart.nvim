@@ -12,3 +12,6 @@ spell/
 nvim-pack-lock.json
 
 .DS_Store
+
+# Per-machine LSP server list (seeded from lua/custom/lsp_servers.lua.example)
+lua/custom/lsp_servers.lua
