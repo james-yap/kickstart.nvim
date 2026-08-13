@@ -119,9 +119,13 @@ do
   vim.o.showmode = false
 
   -- Sync clipboard between OS and Neovim.
-  --  Schedule the setting after `UiEnter` because it can increase startup-time.
-  --  Remove this option if you want your OS clipboard to remain independent.
-  --  See `:help 'clipboard'`
+  --  Schedule unnamedplus after UiEnter because it can increase startup-time.
+  --  Over SSH, also force OSC 52 before the provider loads so nvim does not
+  --  pick xsel/$DISPLAY. Ghostty then gets every yank/delete via OSC 52.
+  --  See `:help clipboard-osc52` and `:help 'clipboard'`
+  if vim.env.SSH_CONNECTION then
+    vim.g.clipboard = 'osc52'
+  end
   vim.schedule(function() vim.o.clipboard = 'unnamedplus' end)
 
   -- Enable break indent
