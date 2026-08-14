@@ -24,6 +24,9 @@ local function github_repo(root)
     local owner, repo
     if url then
       owner, repo = url:match 'github%.com[:/]([^/]+)/([^/]+)$'
+      if not owner then
+        owner, repo = url:match 'gitstream%.shopify%.io[:/]([^/]+)/([^/]+)$'
+      end
     end
     if owner and repo then return owner .. '/' .. repo:gsub('%.git$', '') end
   end
