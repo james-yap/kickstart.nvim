@@ -3,13 +3,12 @@
 -- Copy this file to format.lua and edit what you need:
 --   cp lua/custom/plugins/format.lua.example lua/custom/plugins/format.lua
 --
--- Fresh clones auto-copy this example when format.lua is missing (same
--- pattern as lua/custom/lsp_servers.lua.example).
+-- Fresh clones auto-copy this example when format.lua is missing
+-- (seeded by lua/custom/plugins/init.lua).
 --
 -- Loaded by lua/custom/plugins/init.lua AFTER init.lua SECTION 7 sets up
--- conform.nvim. conform merges configs on repeated setup() calls, so this
--- owns `format_on_save` (enabled filetypes) and `formatters_by_ft` without
--- touching init.lua.
+-- conform.nvim. This second setup owns `format_on_save` and
+-- `formatters_by_ft` so init.lua can stay free of per-machine lists.
 --
 -- Edit the local copy freely — it will not show up in git.
 

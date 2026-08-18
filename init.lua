@@ -110,7 +110,7 @@ do
   vim.o.number = true
   -- You can also add relative line numbers, to help with jumping.
   --  Experiment for yourself to see if you like it!
-  vim.o.relativenumber = true
+  -- vim.o.relativenumber = true
 
   -- Enable mouse mode, can be useful for resizing splits for example!
   vim.o.mouse = 'a'
@@ -119,10 +119,10 @@ do
   vim.o.showmode = false
 
   -- Sync clipboard between OS and Neovim.
-  --  Schedule unnamedplus after UiEnter because it can increase startup-time.
-  --  Over SSH, also force OSC 52 before the provider loads so nvim does not
-  --  pick xsel/$DISPLAY. Ghostty then gets every yank/delete via OSC 52.
-  --  See `:help clipboard-osc52` and `:help 'clipboard'`
+  --  Schedule the setting after `UiEnter` because it can increase startup-time.
+  --  Remove this option if you want your OS clipboard to remain independent.
+  --  See `:help 'clipboard'`
+  -- OSC 52 must be selected before the clipboard provider loads (keep early).
   if vim.env.SSH_CONNECTION then
     vim.g.clipboard = 'osc52'
   end
@@ -188,8 +188,6 @@ do
   -- Clear highlights on search when pressing <Esc> in normal mode
   --  See `:help hlsearch`
   vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
-
-  require('keymaps').setup()
 
   -- Diagnostic Config & Keymaps
   --  See `:help vim.diagnostic.Opts`
@@ -388,17 +386,18 @@ do
   -- change the command under that to load whatever the name of that colorscheme is.
   --
   -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-  -- vim.pack.add { gh 'rose-pine/neovim' }
-  -- require('rose-pine').setup {
-  --   styles = {
-  --     comments = { italic = false },
-  --   },
-  -- }
+  vim.pack.add { gh 'folke/tokyonight.nvim' }
+  ---@diagnostic disable-next-line: missing-fields
+  require('tokyonight').setup {
+    styles = {
+      comments = { italic = false }, -- Disable italics in comments
+    },
+  }
 
   -- Load the colorscheme here.
   -- Like many other themes, this one has different styles, and you could load
   -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-  vim.cmd.colorscheme 'quiet'
+  vim.cmd.colorscheme 'tokyonight-night'
 
   -- Highlight todo, notes, etc in comments
   vim.pack.add { gh 'folke/todo-comments.nvim' }
@@ -448,7 +447,7 @@ do
   -- default behavior. For example, here we set the section for
   -- cursor location to LINE:COLUMN
   ---@diagnostic disable-next-line: duplicate-set-field
-  statusline.section_location = function() return '%2l/%L:%-2v | %p%%' end
+  statusline.section_location = function() return '%2l:%-2v' end
 
   -- ... and there is more!
   --  Check out: https://github.com/nvim-mini/mini.nvim
@@ -499,15 +498,11 @@ do
     -- You can put your default mappings / updates / etc. in here
     --  All the info you're looking for is in `:help telescope.setup()`
     --
-    defaults = {
-      -- Lua patterns (not globs). Skip vendored trees in find/grep pickers.
-      file_ignore_patterns = {
-        'repos/',
-      },
-      -- mappings = {
-      --   i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-      -- },
-    },
+    -- defaults = {
+    --   mappings = {
+    --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
+    --   },
+    -- },
     -- pickers = {}
     extensions = {
       ['ui-select'] = { require('telescope.themes').get_dropdown() },
@@ -531,8 +526,6 @@ do
   vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
   vim.keymap.set('n', '<leader>sc', builtin.commands, { desc = '[S]earch [C]ommands' })
   vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
-  vim.keymap.set('n', '<leader>gs', builtin.git_status, { desc = '[G]it [S]tatus' })
-  vim.keymap.set('n', '<leader>/', builtin.current_buffer_fuzzy_find, { desc = '[/] Fuzzily search in current buffer' })
 
   -- Add Telescope-based LSP pickers when an LSP attaches to a buffer.
   -- If you later switch picker plugins, this is where to update these mappings.
@@ -568,6 +561,15 @@ do
     end,
   })
 
+  -- Override default behavior and theme when searching
+  vim.keymap.set('n', '<leader>/', function()
+    -- You can pass additional configuration to Telescope to change the theme, layout, etc.
+    builtin.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
+      winblend = 10,
+      previewer = false,
+    })
+  end, { desc = '[/] Fuzzily search in current buffer' })
+
   -- It's also possible to pass additional configuration options.
   --  See `:help telescope.builtin.live_grep()` for information about particular keys
   vim.keymap.set(
@@ -584,33 +586,6 @@ do
 
   -- Shortcut for searching your Neovim configuration files
   vim.keymap.set('n', '<leader>sn', function() builtin.find_files { cwd = vim.fn.stdpath 'config', follow = true } end, { desc = '[S]earch [N]eovim files' })
-
-  -- <leader>sg but for plain text
-  vim.keymap.set(
-    'n',
-    '<leader>sG',
-    function()
-      builtin.live_grep {
-        additional_args = { '-F' },
-        prompt_title = 'Live Grep (fixed string)',
-      }
-    end,
-    { desc = '[S]earch by [G]rep (fixed string)' }
-  )
-
-  -- <leader>sf but includes hidden and Git-ignored files
-  vim.keymap.set(
-    'n',
-    '<leader>sF',
-    function()
-      builtin.find_files {
-        hidden = true,
-        no_ignore = true,
-        prompt_title = 'Find Files (hidden + ignored)',
-      }
-    end,
-    { desc = '[S]earch all [F]iles, including hidden and ignored' }
-  )
 end
 
 -- ============================================================
@@ -770,10 +745,8 @@ end
 -- ============================================================
 do
   -- [[ Formatting ]]
-  -- format_on_save enabled_filetypes + formatters_by_ft live in the
-  -- per-machine file lua/custom/plugins/format.lua (gitignored; seeded
-  -- from format.lua.example). custom.plugins loads it later and merges
-  -- into this base setup via a second conform.setup() call.
+  -- Per-machine format_on_save + formatters_by_ft are applied later from
+  -- lua/custom/plugins/format.lua (seeded/loaded via require 'custom').
   vim.pack.add { gh 'stevearc/conform.nvim' }
   require('conform').setup {
     notify_on_error = false,
@@ -781,12 +754,6 @@ do
       lsp_format = 'fallback', -- Use external formatters if configured in format.lua, otherwise use LSP formatting. Set to `false` to disable LSP formatting entirely.
     },
   }
-
-  local format_path = vim.fs.joinpath(vim.fn.stdpath 'config', 'lua', 'custom', 'plugins', 'format.lua')
-  local format_example = format_path .. '.example'
-  if not vim.uv.fs_stat(format_path) and vim.uv.fs_stat(format_example) then
-    assert(vim.uv.fs_copyfile(format_example, format_path), 'failed to seed lua/custom/plugins/format.lua from example')
-  end
 
   vim.keymap.set({ 'n', 'v' }, '<leader>f', function() require('conform').format { async = true } end, { desc = '[F]ormat buffer' })
 end
@@ -950,16 +917,16 @@ do
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
   -- require 'kickstart.plugins.debug'
-  require 'kickstart.plugins.indent_line'
+  -- require 'kickstart.plugins.indent_line'
   -- require 'kickstart.plugins.lint'
-  require 'kickstart.plugins.autopairs'
+  -- require 'kickstart.plugins.autopairs'
   -- require 'kickstart.plugins.neo-tree'
-  require 'kickstart.plugins.gitsigns' -- adds gitsigns recommended keymaps
+  -- require 'kickstart.plugins.gitsigns' -- adds gitsigns recommended keymaps
 
   -- NOTE: You can add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  require 'custom.plugins'
+  require 'custom'
 end
 
 -- The line beneath this is called `modeline`. See `:help modeline`

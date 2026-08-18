@@ -10,6 +10,14 @@ A starting point for Neovim that is:
 
 **NOT** a Neovim distribution, but instead a starting point for your configuration.
 
+## This fork
+
+Personal configuration on top of [nvim-lua/kickstart.nvim](https://github.com/nvim-lua/kickstart.nvim).
+
+**[Compare this fork to upstream `master`](https://github.com/nvim-lua/kickstart.nvim/compare/master...james-yap:kickstart.nvim:master)** — full diff of local customizations.
+
+Personal overrides live under `lua/custom/` so `init.lua` stays close to upstream for easier merges.
+
 ## Installation
 
 ### Install Neovim
