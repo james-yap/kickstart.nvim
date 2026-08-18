@@ -729,6 +729,7 @@ do
   local lsp = require 'custom.lsp_servers'
   local servers = lsp.servers or {}
   local tools = lsp.tools or {}
+  local mason_skip = lsp.mason_skip or {}
 
   vim.pack.add {
     gh 'neovim/nvim-lspconfig',
@@ -754,7 +755,7 @@ do
   -- You can press `g?` for help in this menu.
   local ensure_installed = vim.tbl_keys(servers)
   vim.list_extend(ensure_installed, tools)
-
+  ensure_installed = vim.tbl_filter(function(name) return not mason_skip[name] end, ensure_installed)
   require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
   for name, server in pairs(servers) do
@@ -769,34 +770,23 @@ end
 -- ============================================================
 do
   -- [[ Formatting ]]
+  -- format_on_save enabled_filetypes + formatters_by_ft live in the
+  -- per-machine file lua/custom/plugins/format.lua (gitignored; seeded
+  -- from format.lua.example). custom.plugins loads it later and merges
+  -- into this base setup via a second conform.setup() call.
   vim.pack.add { gh 'stevearc/conform.nvim' }
   require('conform').setup {
     notify_on_error = false,
-    format_on_save = function(bufnr)
-      -- You can specify filetypes to autoformat on save here:
-      local enabled_filetypes = {
-        lua = true,
-        python = true,
-      }
-      if enabled_filetypes[vim.bo[bufnr].filetype] then
-        return { timeout_ms = 500 }
-      else
-        return nil
-      end
-    end,
     default_format_opts = {
-      lsp_format = 'fallback', -- Use external formatters if configured below, otherwise use LSP formatting. Set to `false` to disable LSP formatting entirely.
-    },
-    -- You can also specify external formatters in here.
-    formatters_by_ft = {
-      -- rust = { 'rustfmt' },
-      -- Conform can also run multiple formatters sequentially
-      -- python = { "isort", "black" },
-      --
-      -- You can use 'stop_after_first' to run the first available formatter from the list
-      -- javascript = { "prettierd", "prettier", stop_after_first = true },
+      lsp_format = 'fallback', -- Use external formatters if configured in format.lua, otherwise use LSP formatting. Set to `false` to disable LSP formatting entirely.
     },
   }
+
+  local format_path = vim.fs.joinpath(vim.fn.stdpath 'config', 'lua', 'custom', 'plugins', 'format.lua')
+  local format_example = format_path .. '.example'
+  if not vim.uv.fs_stat(format_path) and vim.uv.fs_stat(format_example) then
+    assert(vim.uv.fs_copyfile(format_example, format_path), 'failed to seed lua/custom/plugins/format.lua from example')
+  end
 
   vim.keymap.set({ 'n', 'v' }, '<leader>f', function() require('conform').format { async = true } end, { desc = '[F]ormat buffer' })
 end
