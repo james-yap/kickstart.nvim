@@ -31,7 +31,7 @@ local function copy_path_with_position()
   end
 
   vim.fn.setreg('+', result)
-  vim.notify('Copied: ' .. result, vim.log.levels.INFO)
+  vim.notify('Copied path+position to clipboard', vim.log.levels.INFO)
 end
 
 vim.keymap.set({ 'n', 'x' }, '<leader>cp', copy_path_with_position, {
@@ -42,5 +42,5 @@ vim.keymap.set({ 'n', 'x' }, '<leader>cp', copy_path_with_position, {
 vim.keymap.set('n', '<leader>cP', function()
   local path = vim.fn.expand '%:p'
   vim.fn.setreg('+', path)
-  vim.notify('Copied: ' .. path, vim.log.levels.INFO)
+  vim.notify('Copied file path to clipboard', vim.log.levels.INFO)
 end, { desc = 'Copy current file path' })
