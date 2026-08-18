@@ -18,10 +18,10 @@ require('conform').setup {
     local enabled_filetypes = {
       lua = true,
       python = true,
-      -- javascript = true,
-      -- javascriptreact = true,
-      -- typescript = true,
-      -- typescriptreact = true,
+      typescript = true,
+      typescriptreact = true,
+      javascript = true,
+      javascriptreact = true,
       -- json = true,
       -- jsonc = true,
     }
@@ -33,15 +33,15 @@ require('conform').setup {
     end
   end,
   formatters_by_ft = {
-    -- Project-local bins (e.g. oxfmt via shadowenv) work if on PATH.
-    -- javascript = { 'oxfmt' },
-    -- javascriptreact = { 'oxfmt' },
-    -- typescript = { 'oxfmt' },
-    -- typescriptreact = { 'oxfmt' },
-    -- json = { 'oxfmt' },
-    -- jsonc = { 'oxfmt' },
+    javascript = { 'prettierd', 'prettier', stop_after_first = true },
+    javascriptreact = { 'prettierd', 'prettier', stop_after_first = true },
+    typescript = { 'prettierd', 'prettier', stop_after_first = true },
+    typescriptreact = { 'prettierd', 'prettier', stop_after_first = true },
+    json = { 'prettierd', 'prettier', stop_after_first = true },
+    -- jsonc = { 'prettierd', 'prettier', stop_after_first = true },
     --
-    -- Or stop after the first available formatter:
-    -- javascript = { 'prettierd', 'prettier', stop_after_first = true },
+    -- Project-local bins (e.g. oxfmt via shadowenv) work if on PATH:
+    -- javascript = { 'oxfmt' },
+    -- typescript = { 'oxfmt' },
   },
 }

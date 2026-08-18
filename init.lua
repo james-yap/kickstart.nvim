@@ -718,7 +718,7 @@ do
 
   -- Enable the following language servers / Mason tools
   --  Per-machine list lives in lua/custom/lsp_servers.lua (gitignored).
-  --  Base template (ruby_lsp + stylua only): lua/custom/lsp_servers.lua.example
+  --  Base template: lua/custom/lsp_servers.lua.example
   --  `servers` are real LSPs; `tools` are formatters/linters (Mason only).
   --  See `:help lsp-config` for information about keys and how to configure
   local servers_path = vim.fs.joinpath(vim.fn.stdpath 'config', 'lua', 'custom', 'lsp_servers.lua')
