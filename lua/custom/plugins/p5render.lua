@@ -6,7 +6,7 @@ require('p5render').setup {
   seconds = 4, -- default duration for :P5Render
 }
 
-vim.keymap.set('n', '<leader>ps', function()
+vim.keymap.set('n', '<leader>pr', function()
   local opts = {}
   if vim.v.count > 0 then
     opts.seconds = vim.v.count
