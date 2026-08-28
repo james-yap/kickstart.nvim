@@ -136,3 +136,128 @@ end
 vim.keymap.set('n', '<leader>oa', open_omp, {
   desc = 'OMP floating terminal',
 })
+
+-- :Term <name> — open or focus a named terminal buffer.
+-- Split with command modifiers, e.g.:
+--   :vertical Term build
+--   :horizontal botright Term logs
+--   :tab Term shell
+local function find_named_term(name)
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_is_valid(buf) and vim.b[buf].named_term == name then
+      return buf
+    end
+  end
+  return nil
+end
+
+local function find_win_for_buf(buf)
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    if vim.api.nvim_win_get_buf(win) == buf then
+      return win
+    end
+  end
+  return nil
+end
+
+-- True when the invocation asked for a new split/tab rather than the current window.
+local function wants_split(smods)
+  return smods.vertical
+    or smods.horizontal
+    or (smods.split ~= nil and smods.split ~= '')
+    or smods.botright
+    or smods.topleft
+    or smods.rightbelow
+    or smods.leftabove
+    or (smods.tab ~= nil and smods.tab > 0)
+end
+
+-- Open an empty window according to :vertical / :botright / :tab / count, etc.
+local function open_split_window(smods)
+  if smods.tab ~= nil and smods.tab > 0 then
+    vim.cmd { cmd = 'tabnew', mods = smods }
+    return
+  end
+
+  local cmd = smods.vertical and 'vnew' or 'new'
+  vim.cmd {
+    cmd = cmd,
+    mods = smods,
+  }
+end
+
+local function show_term_buf(buf, smods)
+  local existing_win = find_win_for_buf(buf)
+  if existing_win and not wants_split(smods) then
+    vim.api.nvim_set_current_win(existing_win)
+    return
+  end
+
+  if wants_split(smods) then
+    open_split_window(smods)
+  end
+
+  vim.api.nvim_set_current_buf(buf)
+end
+
+vim.api.nvim_create_user_command('Term', function(opts)
+  local name = vim.trim(opts.args or '')
+  if name == '' then
+    vim.notify('Term: name required (e.g. :vertical Term build)', vim.log.levels.ERROR)
+    return
+  end
+
+  local smods = opts.smods
+  local existing = find_named_term(name)
+  if existing then
+    show_term_buf(existing, smods)
+    if vim.bo[existing].buftype == 'terminal' then
+      vim.cmd 'startinsert'
+    end
+    return
+  end
+
+  local buf = vim.api.nvim_create_buf(true, false)
+  vim.bo[buf].bufhidden = 'hide'
+  vim.b[buf].named_term = name
+
+  show_term_buf(buf, smods)
+
+  -- Nested :terminal OSC 11 is flaky; seed COLORFGBG from Neovim's background.
+  local colorfgbg = vim.o.background == 'light' and '0;15' or '15;0'
+  vim.fn.jobstart(vim.o.shell, {
+    term = true,
+    cwd = vim.fn.getcwd(),
+    env = {
+      COLORFGBG = colorfgbg,
+    },
+    on_exit = function()
+      vim.schedule(function()
+        if vim.api.nvim_buf_is_valid(buf) then
+          vim.api.nvim_buf_delete(buf, { force = true })
+        end
+      end)
+    end,
+  })
+
+  -- URI form avoids cwd path-prefixing a bare name into a fake file path.
+  pcall(vim.api.nvim_buf_set_name, buf, 'term://' .. name)
+  vim.cmd 'startinsert'
+end, {
+  nargs = 1,
+  complete = function(arglead)
+    local matches = {}
+    for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+      local term_name = vim.b[buf].named_term
+      if term_name and term_name:find(arglead, 1, true) == 1 then
+        matches[#matches + 1] = term_name
+      end
+    end
+    table.sort(matches)
+    return matches
+  end,
+  desc = 'Open or focus a named terminal buffer (supports :vertical / :horizontal / :tab)',
+})
+
+
+
