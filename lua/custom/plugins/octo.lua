@@ -14,3 +14,8 @@ vim.keymap.set('n', '<leader>od', '<CMD>Octo discussion list<CR>', { desc = 'Lis
 vim.keymap.set('n', '<leader>on', '<CMD>Octo notification list<CR>', { desc = 'List GitHub Notifications' })
 
 vim.keymap.set('n', '<leader>os', function() require('octo.utils').create_base_search_command { include_current_repo = true } end, { desc = 'Search GitHub' })
+
+vim.keymap.set('n', '<localleader>cu', '<Cmd>Octo comment url<CR>', {
+  buffer = true,
+  desc = 'Copy comment URL',
+})

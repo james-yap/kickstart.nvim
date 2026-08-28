@@ -4,7 +4,7 @@
 vim.o.relativenumber = true
 
 -- Prefer built-in quiet over the upstream tokyonight install/setup.
-vim.o.background = 'light'
+vim.o.background = 'dark'
 vim.cmd.colorscheme 'quiet'
 
 -- Richer cursor location in mini.statusline.
