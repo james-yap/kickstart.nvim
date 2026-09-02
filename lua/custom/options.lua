@@ -5,7 +5,7 @@ vim.o.relativenumber = true
 
 -- Prefer built-in quiet over the upstream tokyonight install/setup.
 vim.o.background = 'dark'
-vim.cmd.colorscheme 'quiet'
+vim.cmd.colorscheme 'catppuccin'
 
 -- Richer cursor location in mini.statusline.
 local ok, statusline = pcall(require, 'mini.statusline')

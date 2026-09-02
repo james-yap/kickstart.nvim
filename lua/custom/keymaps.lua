@@ -44,3 +44,48 @@ vim.keymap.set('n', 'gP', function()
   vim.fn.setreg('+', path)
   vim.notify('Copied file path to clipboard', vim.log.levels.INFO)
 end, { desc = 'Copy current file path' })
+
+-- Keep the current quickfix entry aligned with the active file without
+-- jumping to the entry's saved line or column.
+local quickfix_sync_group = vim.api.nvim_create_augroup('custom_quickfix_sync', { clear = true })
+
+vim.api.nvim_create_autocmd('BufEnter', {
+  group = quickfix_sync_group,
+  callback = function(args)
+    if vim.bo[args.buf].buftype ~= '' then return end
+
+    local info = vim.fn.getqflist { id = 0, items = 0, idx = 0 }
+    local current_item = info.items[info.idx]
+    if current_item and current_item.bufnr == args.buf then return end
+
+    for index, item in ipairs(info.items) do
+      if item.bufnr == args.buf then
+        vim.fn.setqflist({}, 'a', { id = info.id, idx = index })
+        return
+      end
+    end
+  end,
+  desc = 'Sync quickfix entry with the active file',
+})
+
+-- Remove the focused entry from the current quickfix list. In a quickfix
+-- window, use the cursor row; elsewhere, use the list's active entry.
+vim.keymap.set('n', '<leader>qd', function()
+  local info = vim.fn.getqflist { id = 0, items = 0, idx = 0 }
+  local wininfo = vim.fn.getwininfo(vim.api.nvim_get_current_win())[1]
+  local index = wininfo.quickfix == 1 and vim.api.nvim_win_get_cursor(0)[1] or info.idx
+
+  if index < 1 or index > #info.items then
+    vim.notify('Quickfix list is empty', vim.log.levels.INFO)
+    return
+  end
+
+  table.remove(info.items, index)
+  vim.fn.setqflist({}, 'r', {
+    id = info.id,
+    items = info.items,
+    idx = math.min(index, #info.items),
+  })
+
+  if #info.items > 0 then vim.cmd.cc() end
+end, { desc = 'Quickfix [D]elete focused entry' })

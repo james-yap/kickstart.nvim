@@ -2,7 +2,7 @@ vim.pack.add { 'https://github.com/james-yap/omp.nvim' }
 
 require('omp').setup {
   keymaps = {
-    open = '<C-m>',
+    open = 'gm',
     hide = '<C-q>',
   },
 }
