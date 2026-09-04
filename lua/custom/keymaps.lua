@@ -68,24 +68,18 @@ vim.api.nvim_create_autocmd('BufEnter', {
   desc = 'Sync quickfix entry with the active file',
 })
 
--- Remove the focused entry from the current quickfix list. In a quickfix
--- window, use the cursor row; elsewhere, use the list's active entry.
-vim.keymap.set('n', '<leader>qd', function()
-  local info = vim.fn.getqflist { id = 0, items = 0, idx = 0 }
-  local wininfo = vim.fn.getwininfo(vim.api.nvim_get_current_win())[1]
-  local index = wininfo.quickfix == 1 and vim.api.nvim_win_get_cursor(0)[1] or info.idx
+vim.keymap.set('n', 'g-', function()
+  local abspath = vim.api.nvim_buf_get_name(0)
+  local filename = vim.fn.fnamemodify(abspath, ':t')
+  local relpath = vim.fn.fnamemodify(abspath, ':.')
 
-  if index < 1 or index > #info.items then
-    vim.notify('Quickfix list is empty', vim.log.levels.INFO)
-    return
+  local cmd = string.format('jj squash --into @- %s', vim.fn.shellescape(relpath))
+  local output = vim.fn.system(cmd)
+
+  if vim.v.shell_error ~= 0 then
+    local err_msg = vim.trim(output)
+    vim.notify(string.format('jj squash failed:\n%s', err_msg), vim.log.levels.ERROR)
   end
 
-  table.remove(info.items, index)
-  vim.fn.setqflist({}, 'r', {
-    id = info.id,
-    items = info.items,
-    idx = math.min(index, #info.items),
-  })
-
-  if #info.items > 0 then vim.cmd.cc() end
-end, { desc = 'Quickfix [D]elete focused entry' })
+  vim.notify(string.format( 'squashed "%s" to previous jj commit' , filename), vim.log.levels.INFO)
+end, { desc = 'Squash current file to previous jj commit' })
