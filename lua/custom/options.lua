@@ -11,5 +11,5 @@ vim.cmd.colorscheme 'catppuccin'
 local ok, statusline = pcall(require, 'mini.statusline')
 if ok then
   ---@diagnostic disable-next-line: duplicate-set-field
-  statusline.section_location = function() return '%2l/%L:%-2v | %p%%' end
+  statusline.section_location = function() return 'L%L %p%%' end
 end
