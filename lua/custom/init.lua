@@ -12,7 +12,6 @@
 -- Optional kickstart examples (kept commented in upstream init.lua SECTION 10).
 require 'kickstart.plugins.indent_line'
 require 'kickstart.plugins.autopairs'
-require 'kickstart.plugins.gitsigns' -- adds gitsigns recommended keymaps
 
 require 'custom.plugins'
 require 'custom.options'

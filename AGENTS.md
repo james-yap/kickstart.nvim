@@ -34,7 +34,7 @@ lua/custom/
 
 ### Load order (`lua/custom/init.lua`)
 
-1. Optional kickstart examples (`indent_line`, `autopairs`, `gitsigns`) — keep those lines **commented** in upstream SECTION 10
+1. Optional kickstart examples (`indent_line`, `autopairs`) — keep those lines **commented** in upstream SECTION 10. Gitsigns recommended maps now live in upstream SECTION 4.
 2. `custom.plugins` (format seed + personal plugins + ibl override)
 3. `custom.options`
 4. `custom.telescope`

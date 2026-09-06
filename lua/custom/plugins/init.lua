@@ -14,7 +14,8 @@ if not vim.uv.fs_stat(format_path) and vim.uv.fs_stat(format_example) then
   assert(vim.uv.fs_copyfile(format_example, format_path), 'failed to seed lua/custom/plugins/format.lua from example')
 end
 
--- Iterate over all Lua files in the plugins directory and load them
+-- Iterate over all Lua files in the plugins directory and load them.
+-- `vim.fs.dir()` iteration order is unspecified and must not be relied upon.
 for file_name, type in vim.fs.dir(plugins_dir, { follow = true }) do
   if (type == 'file' or type == 'link') and file_name:match '%.lua$' and file_name ~= 'init.lua' then
     local module = file_name:gsub('%.lua$', '')
