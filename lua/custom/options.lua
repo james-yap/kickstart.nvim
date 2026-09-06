@@ -1,5 +1,31 @@
 -- Personal options / UI overrides applied after upstream kickstart setup.
--- OSC 52 clipboard stays in init.lua SECTION 1 (must run before provider pick).
+
+-- Yank to host clipboard over SSH.
+-- Paste still from unnamed register for terminal security.
+if vim.env.SSH_CONNECTION then
+  local osc52 = require('vim.ui.clipboard.osc52')
+  local function paste()
+    return {
+      vim.split(vim.fn.getreg '"', '\n'),
+      vim.fn.getregtype '"',
+    }
+  end
+  vim.g.clipboard = {
+    name = 'OSC 52',
+    copy = {
+      ['+'] = osc52.copy '+',
+      ['*'] = osc52.copy '*',
+    },
+    paste = {
+      ['+'] = paste,
+      ['*'] = paste,
+    },
+  }
+  if vim.g.loaded_clipboard_provider then
+    vim.g.loaded_clipboard_provider = nil
+    vim.cmd.runtime 'autoload/provider/clipboard.vim'
+  end
+end
 
 vim.o.relativenumber = true
 

@@ -44,7 +44,6 @@ lua/custom/
 
 | Change | Why |
 | --- | --- |
-| OSC 52 `vim.g.clipboard = 'osc52'` under `SSH_CONNECTION` | Must run **early** in SECTION 1, before clipboard provider selection. Do **not** move to end-loaded `custom/options.lua`. |
 | LSP seed + `require 'custom.lsp_servers'` + `tools` / `mason_skip` filter | Per-machine server/tool lists |
 | Conform base install + `notify_on_error` / `default_format_opts` + `<leader>f` | Shared base only |
 | `require 'custom'` in SECTION 10 | Single personal entrypoint (upstream comments stay; only this line active) |
@@ -88,4 +87,3 @@ Expect conflicts mainly around the intentional `init.lua` hooks above. Resolve b
 - Scatter preferences through SECTION 4/5 of `init.lua` (colorscheme, telescope maps, statusline, etc.)
 - Commit gitignored `lsp_servers.lua` / `format.lua`
 - “Fix” `lua_ls` library with `tbl_extend` + luv/busted paths
-- Move OSC 52 assignment to a late-loaded module
