@@ -20,3 +20,14 @@ ls.add_snippets('markdown', {
 		i(0)
 	})
 })
+
+ls.add_snippets('markdown', {
+	s({trig = '\\op', name = 'Operator name'}, {
+		t '\\operatorname{',
+		i(1),
+		t '}',
+		i(0)
+	})
+})
+
+ls.filetype_extend('tex', {'markdown'})

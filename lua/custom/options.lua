@@ -28,6 +28,7 @@ if vim.env.SSH_CONNECTION then
 end
 
 vim.o.relativenumber = true
+vim.opt.colorcolumn = "80"
 
 -- Prefer built-in quiet over the upstream tokyonight install/setup.
 vim.o.background = 'dark'
