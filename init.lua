@@ -319,8 +319,8 @@ do
   })
 end
 
----Because most plugins are hosted on GitHub, you can use the helper
----function to have less repetition in the following sections.
+--- Because most plugins are hosted on GitHub, you can use the helper
+--- function to have less repetition in the following sections.
 ---@param repo string
 ---@return string
 local function gh(repo) return 'https://github.com/' .. repo end
@@ -519,7 +519,7 @@ do
   -- Telescope picker. This is really useful to discover what Telescope can
   -- do as well as how to actually do it!
 
-  ---@type (string|vim.pack.Spec)[]
+  ---@type (string | vim.pack.Spec)[]
   local telescope_plugins = {
     gh 'nvim-lua/plenary.nvim',
     gh 'nvim-telescope/telescope.nvim',
@@ -897,8 +897,12 @@ do
   ---@param buf integer
   ---@param language string
   local function treesitter_try_attach(buf, language)
+    -- Check if the buffer is valid (might not be after install completes)
+    if not vim.api.nvim_buf_is_valid(buf) then return end
+
     -- Check if a parser exists and load it
     if not vim.treesitter.language.add(language) then return end
+
     -- Enable syntax highlighting and other treesitter features
     vim.treesitter.start(buf, language)
 
